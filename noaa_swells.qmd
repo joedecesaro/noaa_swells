@@ -1,0 +1,17 @@
+---
+title: "noaa_swells"
+format: html
+editor: visual
+---
+
+# Background and Motivation
+
+With the historic rainfall and atmospheric river that has been hitting the California Coast in December 2022 and January 2023 I wanted to explore how this has appeared in the ocean swell. With this in mind I am going to explore data from the NOAA API and see what story the data tells us.
+
+
+
+```{r}
+source(file = "token_id.R")
+
+```
+
