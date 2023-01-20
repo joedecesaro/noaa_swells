@@ -11,7 +11,42 @@ With the historic rainfall and atmospheric river that has been hitting the Calif
 
 
 ```{r}
+library(tidyverse)
+library(rnoaa)
+library(lubridate)
+
+
 source(file = "token_id.R")
 
+```
+
+## Pulling in Data using 'rnoaa'
+```{r}
+stand_met <- buoy(dataset = "stdmet", # Standard meteorological data
+                  buoyid = 46053, # East Santa Barbara Buoy ID
+                  year = 9999) # Special value that, if found, contains the most up to date data
+```
+
+The code chunk above uses the api to pull in the most up to date data for the East Santa Barbara buoy. `stand_met` is saved as a 'buoy' type of data, which is not very helpful. Next I will save the data as a dataframe so it is easier to work with and we can see what the time range covers.
+
+```{r}
+swell_data <- stand_met$data # Pull data from the buoy class
+
+head(swell_data$time) # See timeframe that data spans
+tail(swell_data$time)
+
+str(swell_data) # check the types of data in the df
+
+unique(swell_data$mean_wave_dir)
+```
+
+The data covers from September 2012 to January 2023. I am mostly interested in the wave height data which has a lot of NA values in the column because the buoy only takes periodic time readings so lets take them out.
+
+```{r}
+swell_data <- swell_data %>% 
+  select(time:dominant_wpd) %>% # select only these columns as they are what I am interested in
+  drop_na(wave_height) %>%  # drop NA values of wave_height column
+
+ymd_hms(swell_data$time)
 ```
 
