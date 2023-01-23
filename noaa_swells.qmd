@@ -8,12 +8,11 @@ editor: visual
 
 With the historic rainfall and atmospheric river that has been hitting the California Coast in December 2022 and January 2023 I wanted to explore how this has appeared in the ocean swell. With this in mind I am going to explore data from the NOAA API and see what story the data tells us.
 
-
-
 ```{r}
 library(tidyverse)
 library(rnoaa)
 library(lubridate)
+library(ggplot2)
 
 
 source(file = "token_id.R")
@@ -21,6 +20,7 @@ source(file = "token_id.R")
 ```
 
 ## Pulling in Data using 'rnoaa'
+
 ```{r}
 stand_met <- buoy(dataset = "stdmet", # Standard meteorological data
                   buoyid = 46053, # East Santa Barbara Buoy ID
@@ -37,7 +37,7 @@ tail(swell_data$time)
 
 str(swell_data) # check the types of data in the df
 
-unique(swell_data$mean_wave_dir)
+# unique(swell_data$mean_wave_dir) # Check to see if wave direction has anything other than NA
 ```
 
 The data covers from September 2012 to January 2023. I am mostly interested in the wave height data which has a lot of NA values in the column because the buoy only takes periodic time readings so lets take them out.
@@ -45,8 +45,22 @@ The data covers from September 2012 to January 2023. I am mostly interested in t
 ```{r}
 swell_data <- swell_data %>% 
   select(time:dominant_wpd) %>% # select only these columns as they are what I am interested in
-  drop_na(wave_height) %>%  # drop NA values of wave_height column
+  drop_na(wave_height)   # drop NA values of wave_height column
 
-ymd_hms(swell_data$time)
+swell_data$time <- ymd_hms(swell_data$time) #make time column into date_time format
+
+swell_data <- swell_data %>% 
+  mutate(date = date(swell_data$time),
+         hour = hour(swell_data$time),
+         minute = minute(swell_data$time))
+
+
+```
+
+### After that start graphing the data over time. Also could parse the data into winter averages
+
+```{r}
+ggplot(data = swell_data, aes(x = time, y = wave_height)) +
+  geom_line()
 ```
 
