@@ -64,3 +64,33 @@ ggplot(data = swell_data, aes(x = time, y = wave_height)) +
   geom_line()
 ```
 
+This basic graph is helpful for a few reasons. It shows there is a gap in the data from early 2014 to mid 2015. To handle this I will likely just remove the data prior to 2015. The graph also shows the seasonality of the wave heights, with typically the tallest waves coming in the late fall to early spring. To capture this data I am going to filter from October to May. The data units can also be found here: http://www.neracoos.org/erddap/tabledap/cwwcNDBCMet.html.
+
+```{r}
+swell_data <- swell_data %>% 
+  filter(date > "2015-06-01") # filter out the missing data from above and pull from 2015 to present
+
+feet_per_meter = 3.28084
+
+winter_swells <- swell_data %>% 
+  filter(month(date) > 9 | month(date) < 6) %>% 
+  mutate(year = year(time), # make a year column
+         month = month(time), # make a  month column
+         day = day(time), # make a day column
+         wave_height = round(wave_height*feet_per_meter, 2)) %>% # convert wave_height from meters to feet so it is easier to interpret
+  group_by(date) %>% 
+  summarize(mean_wv_ht = mean(wave_height),
+            max_wv_ht = max(wave_height),
+            mean_dom_wpd = mean(dominant_wpd)) %>% 
+  mutate(year = year(date))
+            # year,
+            # lat,
+            # lon)
+
+```
+
+```{r}
+ggplot(data = winter_swells, aes(x = time, y = wave_height, group = year)) +
+  geom_line()
+```
+
