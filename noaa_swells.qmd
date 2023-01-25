@@ -74,23 +74,18 @@ feet_per_meter = 3.28084
 
 winter_swells <- swell_data %>% 
   filter(month(date) > 9 | month(date) < 6) %>% 
-  mutate(year = year(time), # make a year column
-         month = month(time), # make a  month column
-         day = day(time), # make a day column
-         wave_height = round(wave_height*feet_per_meter, 2)) %>% # convert wave_height from meters to feet so it is easier to interpret
+  mutate(wave_height = round(wave_height*feet_per_meter, 2)) %>% # convert wave_height from meters to feet so it is easier to interpret
   group_by(date) %>% 
   summarize(mean_wv_ht = mean(wave_height),
             max_wv_ht = max(wave_height),
             mean_dom_wpd = mean(dominant_wpd)) %>% 
-  mutate(year = year(date))
-            # year,
-            # lat,
-            # lon)
+  mutate(year = year(date),
+         day_of_year = yday(date))
 
 ```
 
 ```{r}
-ggplot(data = winter_swells, aes(x = time, y = wave_height, group = year)) +
+ggplot(data = winter_swells, aes(x = day_of_year, y = mean_wv_ht, group = year, color = year)) +
   geom_line()
 ```
 
